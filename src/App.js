@@ -13,6 +13,12 @@ import { Container, Segment } from 'semantic-ui-react';
     Leave the GlobalProvider as an outer wrapping component
 */
 
+/**
+ * Root application entry component.
+ * @component
+ * @example
+ * ReactDOM.render( <App />, document.getElementById('root') );
+ */
 function App() {
     return (
 

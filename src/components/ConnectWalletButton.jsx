@@ -6,8 +6,8 @@ import { useSelector } from 'react-redux';
 export default function ConnectWalletButton() {
 
     const { web3Connected, web3Connecting } = useSelector(state => ({
-        web3Connected: state.application.web3Connected,
-        web3Connecting: state.application.web3Connecting,
+        web3Connected: state.ethereum.connected,
+        web3Connecting: state.ethereum.connecting,
     }));
 
     const connect = () => {

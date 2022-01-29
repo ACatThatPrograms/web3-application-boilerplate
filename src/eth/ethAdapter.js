@@ -1,57 +1,149 @@
+/** @namespace EthAdapter */
+
 import 'ethers';
 import { ethers } from 'ethers';
 import config from '../config/_config';
 import store from 'redux/store/store';
-import { APPLICATION_ACTIONS } from '../redux/actions';
+import { ETHEREUM_ACTION_TYPES } from 'redux/constants';
+import { ETHEREUM_NETWORK_BY_ID } from 'config/network';
 
-// Re exported for easy importing
+// Re exported for easy importing elsewhere
 export const CONTRACT_NAMES = config.CONTRACT_NAMES;
+
+var instanced = false;
 
 /**
  * Callback to run after establishing web3connection state pass or fail
  * @callback web3ConnectCallback
  * @param { Object } err - Will be null if no error, or else contain the error
  */
+
+/**
+ * @class Ethereum Adapter
+ * @classdesc Used to interact with the browser's web3 wallet
+ * for signing transactions and making actions against the connected blockchain. Should be treated as singleton.
+ */
 class EthAdapter {
 
     constructor() {
-        this.accounts = []; // Web3 Accounts List 
+
+        // Prevent multiple-instances
+        if (instanced) {
+            throw new Error("Do not instance EthAdapter more than once. Use the already existing instance that is exported from eth/ethAdapter.js")
+        }
+        instanced = true;
+
+        // Redux Hook-ins For class instance state -- Useful for state that may be shown to UI to propagate renders
+        this.accounts = this._buildGetterSetterForEthereumStateKey(["accounts"]);
+        this.connected = this._buildGetterSetterForEthereumStateKey(["connected"]);
+        this.connecting = this._buildGetterSetterForEthereumStateKey(["connecting"]);
+        this.connectedAccount = this._buildGetterSetterForEthereumStateKey(["connectedAccount"]);
+        this.balances = this._buildGetterSetterForEthereumStateKey(["balances"]);
+        this.balancesLoading = this._buildGetterSetterForEthereumStateKey(["balancesLoading"]);
+        this.networkId = this._buildGetterSetterForEthereumStateKey(["networkId"]);
+        this.networkName = this._buildGetterSetterForEthereumStateKey(["networkName"]);
+        // Instance state not needed in redux
+        this.contracts = config.CONTRACTS; // Contract details from contract configuration
         this.provider = null; // Web3 Provider -- Populated on successful _connectToWeb3Wallet()
         this.signer = null; // Web3 Signer -- Populated on successful _connectToWeb3Wallet()
-        this.contracts = config.CONTRACTS; // Contracts from config
-        console.debug("EthAdapter Init: ", this);
+        // Initialization debug printout
+        console.debug("EthAdapter instanced: ", { instace: this, state: store.getState().ethereum });
     }
 
+
+    /**
+     * Returns a getter/setter for a specific redux state value keychain
+     * Allows easier integration with redux state for Class updates to propagate UI renders
+     * @param { Array.String } keychain - The keychain to create getter/setters for :: eg {balances: ethereum: 2 } === ["balances", "ethereum"]
+     */
+    _buildGetterSetterForEthereumStateKey(keychain = []) {
+        /**
+         * Returns the current state from redux
+         * @returns { (String|Object) } - The returned state
+         */
+        const get = function () {
+            let state = store.getState().ethereum;
+            let maxDepth = keychain.length // Final depth to search an object for key 
+            let stateFound = state[keychain[0]]; // Get root state
+            for (let i = 1; i < maxDepth; i++) { // Search object until state key is found
+                stateFound = stateFound[keychain[i]];
+            }
+            return stateFound
+        }
+        /**
+        * Updates the redux state for this object
+        */
+        const set = (updateValue) => {
+            store.dispatch({
+                type: ETHEREUM_ACTION_TYPES.UPDATE_ETHEREUM_INSTANCE_STATE_BY_KEYCHAIN,
+                payload: { keychain: keychain, value: updateValue }
+            });
+        }
+        return { get: get, set: set }
+    }
 
     /**
      * Attempt to connect to a Web3 Wallet from window.ethereum
-     * @param { web3ConnectCallback } cb - Callback to run after a connection contains err if error
+     * @param { connectToWeb3Wallet~web3ConnectCallBack } web3ConnectCallback - Callback to run after a connection contains err if error
      */
-    async connectToWeb3Wallet(cb) {
-        store.dispatch(APPLICATION_ACTIONS.setWeb3Connecting(true));
+    async connectToWeb3Wallet(web3ConnectCallback) {
+        this.connecting.set(true);
+        if (!window.ethereum) {
+            return { error: "No web3 wallet detected." }
+        }
         try {
             this.provider = new ethers.providers.Web3Provider(window.ethereum, "any"); // Establish connection to injected wallet
-            this.accounts = await this.provider.send("eth_requestAccounts", []); // Request accounts
+            this.accounts.set(await this.provider.send("eth_requestAccounts", [])); // Request accounts
             this.signer = this.provider.getSigner(); // Get the signer
-            let address = await this._getAddressByIndex(0)
-
-            store.dispatch(APPLICATION_ACTIONS.setConnectedAddress(address))
-            store.dispatch(APPLICATION_ACTIONS.setWeb3Connected(true))
-
-            cb();
+            this.networkId.set(window.ethereum.chainId);
+            let address = await this.getAddressByIndex(0)
+            this.connectedAccount.set(address);
+            this.connected.set(true);
+            this._setupWeb3Listeners(); // Setup listeners for injected web3 wallet
+            web3ConnectCallback();
         } catch (ex) {
             console.error(ex);
-            cb({ error: ex.message });
+            web3ConnectCallback({ error: ex.message });
         }
-        store.dispatch(APPLICATION_ACTIONS.setWeb3Connecting(false));
+        this.connecting.set(false);
+        console.debug("EthAdapter Connected: ", { reduxState: store.getState().ethereum, instance: this });
     }
 
     /**
-     * Get address from accounts[index] or return 0 if empty.
-     * @param {*} index - Index to get from this.accounts
+     * Setup web3 listeners for connected web3Wallet state changes
      */
-    async _getAddressByIndex(index) {
-        return this.accounts.length > 0 ? this.accounts[index] : 0;
+    async _setupWeb3Listeners() {
+        if (window.ethereum) {
+            console.log(window.ethereum)
+            window.ethereum.on("networkChanged", networkId => {
+                this.networkId.set(networkId);
+                this.networkName.set(ETHEREUM_NETWORK_BY_ID[networkId]);
+            })
+            window.ethereum.on("accountsChanged", async accounts => {
+                this.accounts.set(accounts);
+                let address = await this.getAddressByIndex(0)
+                this.connectedAccount.set(address);
+            })
+        } else {
+            console.warn("No web3 detected.") // TODO: Add fallback
+        }
+    }
+
+    /**
+     * This callback is called after a connectToWeb3Wallet attempt with err if err.
+     * @callback connectToWeb3Wallet~web3ConnectCallBack
+     * @param { (Object|Null) } err - Error if an object has occured
+     */
+
+    /**
+     * Get address from accounts[index] or return 0 if empty.
+     * @param { Number } index - Index to get from this.accounts
+     */
+    async getAddressByIndex(index = 0) {
+        let accounts = this.accounts.get();
+        console.log('idx', index);
+        console.log(accounts[index]);
+        return accounts.length > 0 ? accounts[index] : 0;
     }
 
     /**
@@ -92,14 +184,17 @@ class EthAdapter {
     }
 
     /**
-     * @param { Boolean } formatted - Instead of WEI BigNumber, return parsed  etehreum balance as a string 
      * @param { Number } accountIndex - Account index of this.accounts[i] to check balance for
-     * @returns { BigNumber||String } - Ethereum balance of this.accounts[accountIndex] as BigNumber wei or if formatted===true, a utils.formatted string
      */
-    async getEthereumBalance(formatted, accountIndex = 0) {
+    async updateEthereumBalance(accountIndex = 0) {
+        if (isNaN(accountIndex)) { throw new Error("updateEthereumBalance() can only be called with a number") }
         return this._try(async () => {
-            let balance = await this.provider.getBalance(this._getAddressByIndex(accountIndex))
-            return formatted ? ethers.utils.formatEther(balance) : balance;
+            console.log(await this.getAddressByIndex(accountIndex))
+            let balance = await this.provider.getBalance(this.getAddressByIndex(accountIndex))
+            this.balances.set({
+                ...this.balances.get(),
+                ethereum: ethers.utils.formatEther(balance)
+            })
         })
     }
 
@@ -197,4 +292,5 @@ class EthAdapter {
 }
 
 let ethAdapter = new EthAdapter();
+
 export default ethAdapter;

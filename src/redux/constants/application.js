@@ -1,12 +1,9 @@
+/** @module redux_application_constants */
+
 /**
- * @typedef {String} ApplicationActionType - Application Action Types -- Reducer State Constants
+ * @enum {String} ApplicationActionType - Application Action Types -- Reducer State Constants
+ * Used specifically within the application reducer's switch statement to determine what updates to state occur 
  */
 export const APPLICATION_ACTION_TYPES = {
-    SET_BALANCES_LOADING: "SET_BALANCES_LOADING",
-    SET_CONNECTED_ADDRESS: "SET_CONNECTED_ADDRESS",
     SET_DEBUG_MODE: "SET_DEBUG_MODE",
-    SET_ETHEREUM_BALANCE: "SET_ETHEREUM_BALANCE",
-    SET_WEB3_CONNECTED: "SET_WEB3_CONNECTED",
-    SET_WEB3_CONNECTING: "SET_WEB3_CONNECTING",
-    TOGGLE_TX_PENDING_STATUS: "TOGGLE_TX_PENDING_STATUS",
 };
