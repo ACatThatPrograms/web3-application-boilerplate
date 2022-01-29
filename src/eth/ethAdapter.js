@@ -114,7 +114,6 @@ class EthAdapter {
      */
     async _setupWeb3Listeners() {
         if (window.ethereum) {
-            console.log(window.ethereum)
             window.ethereum.on("networkChanged", networkId => {
                 this.networkId.set(networkId);
                 this.networkName.set(ETHEREUM_NETWORK_BY_ID[networkId]);
@@ -141,8 +140,6 @@ class EthAdapter {
      */
     async getAddressByIndex(index = 0) {
         let accounts = this.accounts.get();
-        console.log('idx', index);
-        console.log(accounts[index]);
         return accounts.length > 0 ? accounts[index] : 0;
     }
 
