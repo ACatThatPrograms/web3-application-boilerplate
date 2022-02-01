@@ -99,6 +99,7 @@ class EthAdapter {
             let address = await this.getAddressByIndex(0)
             this.connectedAccount.set(address);
             this.connected.set(true);
+            this.updateEthereumBalance(0);
             this._setupWeb3Listeners(); // Setup listeners for injected web3 wallet
             web3ConnectCallback();
         } catch (ex) {
@@ -117,11 +118,13 @@ class EthAdapter {
             window.ethereum.on("networkChanged", networkId => {
                 this.networkId.set(networkId);
                 this.networkName.set(ETHEREUM_NETWORK_BY_ID[networkId]);
+                this.updateEthereumBalance();
             })
             window.ethereum.on("accountsChanged", async accounts => {
                 this.accounts.set(accounts);
                 let address = await this.getAddressByIndex(0)
                 this.connectedAccount.set(address);
+                this.updateEthereumBalance();
             })
         } else {
             console.warn("No web3 detected.") // TODO: Add fallback
@@ -190,7 +193,7 @@ class EthAdapter {
             let balance = await this.provider.getBalance(this.getAddressByIndex(accountIndex))
             this.balances.set({
                 ...this.balances.get(),
-                ethereum: ethers.utils.formatEther(balance)
+                ethereum: parseFloat(ethers.utils.formatEther(balance)).toFixed(4)
             })
         })
     }

@@ -1,64 +1,32 @@
 import React from 'react';
-
-/** Component Import */
-import ToggleDebugModeButton from "./components/ToggleDebugModeButton";
-import ConnectWalletButton from "./components/ConnectWalletButton";
-import PrintEthereumBalanceButton from './components/PrintEthereumBalanceButton';
-import StorageSolInteraction from './components/StorageSolInteraction';
-import ConnectedAddressIndicator from './components/ConnectedAddressIndicator';
-import { Container, Segment } from 'semantic-ui-react';
-
-/* 
-    Everything from <<< to >>> below can be removed for your application contect. 
-    Leave the GlobalProvider as an outer wrapping component
-*/
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Lander, PageWrap, HeaderMenu } from 'components';
 
 /**
  * Root application entry component.
  * @component
  * @example
- * ReactDOM.render( <App />, document.getElementById('root') );
+ * ReactDOM.render( <App />, document.getElementById('roo
+') );
  */
 function App() {
+
     return (
+        <Router>
 
-        <Container className="mt-8">
+            <HeaderMenu />
 
-            {/*<<<*/}
-            <Segment>
+            <PageWrap>
 
-                <div className="absolute top-2 right-4">
-                    <ConnectedAddressIndicator />
-                </div>
+                <Routes>
 
-                <div className="text-2xl font-bold">
-                    Base Web3 Application Boilerplate
-                    <div className="text-sm text-gray-500">
-                        Ethers.JS Demo Button Below:
-                    </div>
-                </div>
+                    <Route path="/" element={<Lander />} />
 
-                <div className="mt-4">
-                    <ConnectWalletButton />
-                </div>
+                </Routes>
 
-                <div className="mt-4 w-40">
-                    <PrintEthereumBalanceButton />
-                </div>
+            </PageWrap>
 
-                <div className="mt-4">
-                    <ToggleDebugModeButton />
-                </div>
-
-                <div className="mt-4">
-                    <StorageSolInteraction />
-                </div>
-
-            </Segment>
-
-            {/**>>>*/}
-        </Container>
-
+        </Router>
     );
 }
 

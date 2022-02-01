@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'semantic-ui-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { APPLICATION_ACTIONS } from '../redux/actions';
+import { APPLICATION_ACTIONS } from 'redux/actions';
 
 export default function ToggleDebugModeButton() {
 

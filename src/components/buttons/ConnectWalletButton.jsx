@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from 'semantic-ui-react';
-import ethAdapter from '../eth/ethAdapter';
+import ethAdapter from '../../eth/ethAdapter';
 import { useSelector } from 'react-redux';
 
 export default function ConnectWalletButton() {

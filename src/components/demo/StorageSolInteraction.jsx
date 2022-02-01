@@ -1,14 +1,14 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Segment, Form, Header } from 'semantic-ui-react';
-import ethAdapter, { CONTRACT_NAMES } from '../eth/ethAdapter';
+import ethAdapter, { CONTRACT_NAMES } from 'eth/ethAdapter';
 
-export default function StorageSolInteraction() {
+export function StorageSolInteraction() {
 
     const [storedValue, setStoredValue] = React.useState('');
     const [updateVal, setUpdateVal] = React.useState('');
     const [loader, setLoader] = React.useState(false);
-    const { web3Connected } = useSelector(state => ({ web3Connected: state.application.web3Connected }));
+    const { web3Connected } = useSelector(state => ({ web3Connected: state.ethereum.connected }));
 
     const setValue = async () => {
         let asNum;
@@ -42,16 +42,16 @@ export default function StorageSolInteraction() {
 
         <Segment attached>
 
-            <div className="max-w-prose">
+            <div>
 
-                <Header>
+                <Header textAlign="center" className="text-left">
                     Storage.Sol Interaction Demo
                     <Header.Subheader>
                         For demo, verify network is set to Goerli and dotenv has been copied to .env
                     </Header.Subheader>
                 </Header>
 
-                <div className="w-80">
+                <div className="flex  mt-6">
 
                     <Form size="mini">
 
@@ -64,7 +64,7 @@ export default function StorageSolInteraction() {
                                 onClick: getValue,
                                 disabled: true,
                             }}
-                            value={web3Connected ? (storedValue) : "Not web3Connected"}
+                            value={web3Connected ? (storedValue) : ""}
                             readOnly
                         />
 
@@ -78,7 +78,7 @@ export default function StorageSolInteraction() {
                                 loading: loader,
                             }}
                             placeholder="Must be a number!"
-                            value={web3Connected ? (updateVal) : "Not web3Connected"}
+                            value={web3Connected ? (updateVal) : "No Wallet Detected"}
                             onChange={e => setUpdateVal(e.target.value)}
                         />
 
