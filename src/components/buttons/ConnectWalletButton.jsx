@@ -21,6 +21,7 @@ export default function ConnectWalletButton() {
     return (
 
         <Button
+            className="w-56 text-center"
             size="small"
             content={!web3Connected ? "Connect Web3" : "Web3 Connected"}
             onClick={!web3Connected ? connect : null}

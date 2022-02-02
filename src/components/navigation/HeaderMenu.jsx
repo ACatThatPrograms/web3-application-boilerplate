@@ -35,7 +35,7 @@ export function HeaderMenu() {
 
         const Web3Balances = () => {
             return (
-                <Label size="small" className="bg-blue-200 flex justify-between items-center md:mr-8 md:mb-0 mb-2 mr-0 px-6">
+                <Label size="small" className="bg-blue-200 flex justify-between items-center md:mb-0 mb-2 px-6">
                     <div>
                         <Image inline src={ethIcon} size="mini" className="w-3 mr-8" />
                     </div>
@@ -46,7 +46,9 @@ export function HeaderMenu() {
 
         return (
             <div className="flex flex-col md:flex-row">
-                {!!connected && <Web3Balances />}
+                <div className="flex justify-center w-52 md:mr-8 mr-0">
+                    {!!connected && <Web3Balances />}
+                </div>
                 <ConnectWalletButton />
             </div>
         )
