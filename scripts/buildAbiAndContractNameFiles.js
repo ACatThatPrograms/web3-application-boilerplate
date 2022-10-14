@@ -16,7 +16,7 @@ module.exports.buildAbiAndContractNameFiles = async function buildAbiFiles(arg) 
         const abiFile = await fs.readFile('./artifacts/' + abiFileName)
         const abiFileAsJSON = JSON.parse(abiFile.toString());
         // Find ABI and write ES6 syntax .js file for it
-        let abi = util._recurseForObjectKey(abiFileAsJSON, "abi");
+        const abi = (!Array.isArray(abiFileAsJSON)) ? util._recurseForObjectKey(abiFileAsJSON, "abi") : abiFileAsJSON;
         const abiObj = abi;
         const abiJson = JSON.stringify(abiObj);
         const contractName = abiFileName.replace('.json', "").toUpperCase();
@@ -31,6 +31,8 @@ module.exports.buildAbiAndContractNameFiles = async function buildAbiFiles(arg) 
     await fs.writeFile(__dirname + '/../src/config/contract_names.js', contractNamesES6, "utf8");
 
     console.log('\033[1;32mABIs and CONTRACT_NAMES Successfully Parsed to ES6 Syntax in src/config/\n\033[0m');
+
+    return ABIS;
 
 }
 

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 // App Entry
 import App from './App';
 // Style
-import 'semantic-ui-css/semantic.min.css'
 import './style/index.css';
 
 /* Redux Store */

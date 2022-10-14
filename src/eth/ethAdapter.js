@@ -6,11 +6,15 @@ import config from '../config/_config';
 import store from 'redux/store/store';
 import { ETHEREUM_ACTION_TYPES } from 'redux/constants';
 import { ETHEREUM_NETWORK_BY_ID } from 'config/network';
+import contractFxs from './contractMethods';
 
 // Re exported for easy importing elsewhere
 export const CONTRACT_NAMES = config.CONTRACT_NAMES;
 
-var instanced = false;
+// Export direct access to contract methods
+export const CONTRACT_FXS = contractFxs;
+
+var instanced = false; // Is ethAdapter instanced?
 
 /**
  * Callback to run after establishing web3connection state pass or fail
@@ -26,7 +30,6 @@ var instanced = false;
 class EthAdapter {
 
     constructor() {
-
         // Prevent multiple-instances
         if (instanced) {
             throw new Error("Do not instance EthAdapter more than once. Use the already existing instance that is exported from eth/ethAdapter.js")
@@ -42,10 +45,12 @@ class EthAdapter {
         this.balancesLoading = this._buildGetterSetterForEthereumStateKey(["balancesLoading"]);
         this.networkId = this._buildGetterSetterForEthereumStateKey(["networkId"]);
         this.networkName = this._buildGetterSetterForEthereumStateKey(["networkName"]);
+
         // Instance state not needed in redux
         this.contracts = config.CONTRACTS; // Contract details from contract configuration
         this.provider = null; // Web3 Provider -- Populated on successful _connectToWeb3Wallet()
         this.signer = null; // Web3 Signer -- Populated on successful _connectToWeb3Wallet()
+
         // Initialization debug printout
         console.debug("EthAdapter instanced: ", { instace: this, state: store.getState().ethereum });
     }

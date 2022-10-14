@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Lander, PageWrap, HeaderMenu } from 'components';
+import { Lander, PageWrap } from 'components';
 
 /**
  * Root application entry component.
@@ -13,8 +13,6 @@ function App() {
 
     return (
         <Router>
-
-            <HeaderMenu />
 
             <PageWrap>
 

@@ -1,5 +1,6 @@
 const { buildBytecodeFiles } = require('./buildBytecodeFiles');
 const { buildAbiAndContractNameFiles } = require('./buildAbiAndContractNameFiles');
+const { buildMethods } = require('./buildMethods')
 const sleeper = (amt) => ( (new Promise(res => setTimeout(res, amt))) );
 
 main();
@@ -14,11 +15,15 @@ async function main() {
     await sleeper(1500);
 
     console.log("Transpiling ABI and Contract names to ES6 Syntax...\n");
-    await buildAbiAndContractNameFiles();
+    const ABIS = await buildAbiAndContractNameFiles();
 
     await sleeper(1500);
     console.log("Transpiling Bytecodes to ES6 Syntax...\n");
     await buildBytecodeFiles();
+
+    await sleeper(1500);
+    console.log("Extracting Methods from Transpiled Contract Configuration...")
+    await buildMethods(ABIS)
 
     console.log("\033[1;35m=====================================")
     console.log("========== TRANSPILER  END ==========")

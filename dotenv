@@ -5,14 +5,3 @@ REACT_APP__ETHEREUM_ENDPOINT_PRODUCTION=""
 
 ## Contracts Below
 REACT_APP__STORAGE_CONTRACT_ADDRESS=0x4095b90030dB59765FF43ab0cf7Cac6A60e3793c
-
-##########################################################
-## Optional _create2 deterministic address requirements ## 
-##########################################################
-## -- Note that you also need to supply bytecode in ./bytecode -- SEE README
-
-REACT_APP__CONTRACT_FACTORY_ADDRESS=0x0
-
-## A Salt is needed for each contract
-
-REACT_APP__STORAGE_CONTRACT_SALT="STORAGE"
