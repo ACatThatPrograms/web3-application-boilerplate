@@ -1,20 +1,16 @@
 /** @namespace EthAdapter */
 
-import 'ethers';
 import { ethers } from 'ethers';
-import config from '../config/_config';
-import store from 'redux/store/store';
+import { configuration } from '../config/_config';
 import { ETHEREUM_ACTION_TYPES } from 'redux/constants';
-import { ETHEREUM_NETWORK_BY_ID } from 'config/network';
-import contractFxs from './contractMethods';
+// import contractFxs from './contractMethods';
+import store from 'redux/store/store';
 
-// Re exported for easy importing elsewhere
-export const CONTRACT_NAMES = config.CONTRACT_NAMES;
-
-// Export direct access to contract methods
-export const CONTRACT_FXS = contractFxs;
+const contractFxs = null; // shim as null while debeugging
 
 var instanced = false; // Is ethAdapter instanced?
+
+console.log(configuration); // Uncomment = break
 
 /**
  * Callback to run after establishing web3connection state pass or fail
@@ -28,8 +24,9 @@ var instanced = false; // Is ethAdapter instanced?
  * for signing transactions and making actions against the connected blockchain. Should be treated as singleton.
  */
 class EthAdapter {
-
+    
     constructor() {
+        
         // Prevent multiple-instances
         if (instanced) {
             throw new Error("Do not instance EthAdapter more than once. Use the already existing instance that is exported from eth/ethAdapter.js")
@@ -45,14 +42,18 @@ class EthAdapter {
         this.balancesLoading = this._buildGetterSetterForEthereumStateKey(["balancesLoading"]);
         this.networkId = this._buildGetterSetterForEthereumStateKey(["networkId"]);
         this.networkName = this._buildGetterSetterForEthereumStateKey(["networkName"]);
-
+        
         // Instance state not needed in redux
-        this.contracts = config.CONTRACTS; // Contract details from contract configuration
-        this.provider = null; // Web3 Provider -- Populated on successful _connectToWeb3Wallet()
+        // this.configuration = configuration;
+        // this.provider = new ethers.providers.JsonRpcProvider(configuration.ethereum?.ETH_HTTP_PROVIDER); // Web3 Provider -- Populated on successful _connectToWeb3Wallet()
         this.signer = null; // Web3 Signer -- Populated on successful _connectToWeb3Wallet()
 
+        this.contractMethods = contractFxs;
+
+
+
         // Initialization debug printout
-        console.debug("EthAdapter instanced: ", { instace: this, state: store.getState().ethereum });
+        console.debug("EthAdapter instanced: ", { instance: this, state: store.getState().ethereum });
     }
 
 
@@ -122,7 +123,7 @@ class EthAdapter {
         if (window.ethereum) {
             window.ethereum.on("networkChanged", networkId => {
                 this.networkId.set(networkId);
-                this.networkName.set(ETHEREUM_NETWORK_BY_ID[networkId]);
+                this.networkName.set(this.configuration.ethereum.ETHEREUM_NETWORK_BY_ID[networkId]);
                 this.updateEthereumBalance();
             })
             window.ethereum.on("accountsChanged", async accounts => {
@@ -153,39 +154,25 @@ class EthAdapter {
 
     /**
      * Returns an ethers.js contract instance that has been instanced without a signer for read-only calls
-     * @param {ContractName} contractName - One of the available contract name strings from config  
+     * @param {ContractName} contractName - One of the available contract name strings from this.configuration  
      */
     _getReadonlyContractInstance(contractName) {
         this._requireContractExists(contractName);
         this._requireContractAddress(contractName);
         this._requireContractAbi(contractName);
-        return new ethers.Contract(this.contracts[contractName].address, this.contracts[contractName].abi, this.provider);
+        return new ethers.Contract(this.configuration.ethereum.CONTRACTS[contractName].address, this.configuration.ethereum.CONTRACTS[contractName].abi, this.provider);
     }
 
     /**
      * Returns an ethers.js contract instance that has been instanced with a signer ( this.signer )
-     * @param {ContractName} contractName - One of the available contract name strings from config  
+     * @param {ContractName} contractName - One of the available contract name strings from this.configuration  
      */
     _getSignerContractInstance(contractName) {
         this._requireContractExists(contractName);
         this._requireContractAddress(contractName);
         this._requireContractAbi(contractName);
         this._requireSigner(contractName);
-        return new ethers.Contract(this.contracts[contractName].address, this.contracts[contractName].abi, this.signer);
-    }
-
-    // TBD: FINISH DETERMINISTIC CONFIG SETUP
-    /** Get deterministic create2 contract address by contract name
-     * @param {ContractName} contractName - One of the available contract name strings from config  
-     * @returns {web3.eth.Contract} 
-     */
-    _getDeterministicContractAddress(contractName) {
-        return `0x${this.web3.utils.sha3(`0x${[
-            'ff',
-            config.factoryContractAddress,
-            config.CONTRACT_SALTS[contractName],
-            this.web3.utils.sha3(config.CONTRACT_BYTECODE[contractName])
-        ].map(x => x.replace(/0x/, '')).join('')}`).slice(-40)}`.toLowerCase();
+        return new ethers.Contract(this.configuration.ethereum.CONTRACTS[contractName].address, this.configuration.ethereum.CONTRACTS[contractName].abi, this.signer);
     }
 
     /**
@@ -209,21 +196,21 @@ class EthAdapter {
 
     /** Internal contract settings requirement helper for contract functions */
     _requireContractExists(contractName) {
-        if (!this.contracts[contractName]) {
-            this._throw("Contract configuration for contract '" + contractName + "' nonexistant. Verify contract has been set in .env");
+        if (!this.configuration.ethereum.CONTRACTS[contractName]) {
+            this._throw("Contract this.configuration for contract '" + contractName + "' nonexistant. Verify contract has been set in .env");
         }
     }
 
     /** Internal ABI requirement helper for contract functions */
     _requireContractAbi(contractName) {
-        if (!this.contracts[contractName].abi) {
+        if (!this.configuration.ethereum.CONTRACTS[contractName].abi) {
             this._throw("Requesting contract instance for contract '" + contractName + "' with nonexistant abi. Verify ABI has been set.");
         }
     }
 
     /** Internal contract address requirement helper for contract functions */
     _requireContractAddress(contractName) {
-        if (!this.contracts[contractName].address) {
+        if (!this.configuration.ethereum.CONTRACTS[contractName].address) {
             this._throw("Requesting contract instance for contract '" + contractName + "' with nonexistant address. Verify address has been set.");
         }
     }
@@ -270,7 +257,7 @@ class EthAdapter {
 
     /**
      * Attempt a call on a contract method
-     * @param {ContractName} contractName - One of the available contract name strings from config  
+     * @param {ContractName} contractName - One of the available contract name strings from this.configuration  
      * @param { String } methodName - Exact smart contract method name as a string
      * @param {Array} paramaters - Contract method parameters as an array  
      */
@@ -286,7 +273,7 @@ class EthAdapter {
 
     /**
      * Attempt a send on a contract method
-     * @param {ContractName} contractName - One of the available contract name strings from config  
+     * @param {ContractName} contractName - One of the available contract name strings from this.configuration  
      * @param { String } methodName - Exact smart contract method name as a string
      * @param {Array} paramaters - Contract method parameters as an array  
      */

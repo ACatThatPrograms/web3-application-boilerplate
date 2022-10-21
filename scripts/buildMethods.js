@@ -28,14 +28,20 @@ module.exports.buildMethods = async function (ABIS) {
 
         fx += `export async function ${fxName}(`
 
-        // Construct function parameters
+        // Construct deconstructable function parameters
+        if (inputs.length > 0) {
+            fx += `{`
+        }
         for (let i = 0; i < inputs.length; i++) {
-            let input = inputs[i]; 
+            let input = inputs[i];
             // Replace any invalid JS Chars with text
-            input.type = input.type.replace("[]", "Array") 
+            input.type = input.type.replace("[]", "Array")
             // Add fx params
             fx += `${input.name}_${input.type}`
             if (i !== inputs.length - 1) { fx += ', '; } // Comma for each param 
+        }
+        if (inputs.length > 0) {
+            fx += `}`
         }
         // Close parameters and break into function body
         fx += `) {\n`
@@ -51,7 +57,7 @@ module.exports.buildMethods = async function (ABIS) {
         // Add inputs to call
         for (let i = 0; i < inputs.length; i++) {
             let input = inputs[i];
-            if (input.name === "contractInstance") { continue } // Skip shimmed input
+            // if (input.name === "contractInstance") { continue } // Skip shimmed input
             fx += `${input.name}_${input.type}`
             if (i !== inputs.length - 1) { fx += ', '; } // Comma for each param 
         }
@@ -64,7 +70,25 @@ module.exports.buildMethods = async function (ABIS) {
         // Add catch
         fx += ` catch(ex) { \n\t\treturn { error: ex.message }\n\t}`
         // Add final closure
-        fx += `\n}\n\n`
+        fx += `\n}\n`
+
+        // Add params property for parsing into front-end components
+        fx += `${fxName}.params = [`
+
+        for (let i = 0; i < inputs.length; i++) {
+            if (i === 0) { fx += '\n' }
+            let input = inputs[i];
+            // if (input.name === "contractInstance") { continue } // Skip shimmed input
+            fx += `\t{name:"${input.name}",type:"${input.type}"}`
+            if (i !== inputs.length - 1) { fx += ',\n'; } // Comma for each param 
+        }
+
+        if (inputs.length !== 0) {
+            fx += '\n';
+        }
+
+        // Close array
+        fx += `];\n\n`;
 
         return [fx, fxName];
     }
@@ -111,7 +135,8 @@ module.exports.buildMethods = async function (ABIS) {
         output += contractMethodStrings[i];
     }
 
-    output += `export default {`;
+    // Add methods object opener
+    output += `const contractMethods = {`;
 
     // Go through each contract and get the functions for exporting
     for (let i = 0; i < Object.keys(contractFxNamesForContract).length; i++) {
@@ -141,8 +166,12 @@ module.exports.buildMethods = async function (ABIS) {
 
     }
 
-    // Add final export closure
+    // Add final object closure
     output += `\n}`
+
+    // Add default export
+
+    output += `\n\nexport default contractMethods;`
 
     await fs.writeFile(__dirname + '/../src/eth/contractMethods.js', output, "utf8");
 

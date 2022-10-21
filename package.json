@@ -5,11 +5,13 @@
   "dependencies": {
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
+    "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.9",
     "@semantic-ui-react/css-patch": "1.0.0",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",
     "@testing-library/user-event": "13.5.0",
+    "circular-dependency-plugin": "^5.2.2",
     "ethers": "5.5.3",
     "jsdoc": "3.6.10",
     "react": "17.0.2",
@@ -60,6 +62,7 @@
     "autoprefixer": "10.4.2",
     "better-docs": "2.7.1",
     "postcss": "8.4.5",
+    "react-app-rewired": "^2.2.1",
     "redux-devtools-extension": "2.13.9",
     "tailwindcss": "3.0.15"
   }
