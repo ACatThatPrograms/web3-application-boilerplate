@@ -1,8 +1,6 @@
 import * as contractsConfig from './contracts';
 import * as networkConfig from './network';
 
-// Page imports
-import { PageOne, PageTwo, PageThree, ContractTest } from 'pages'
 // Icon Import
 import AdbIcon from '@mui/icons-material/Adb';
 
@@ -33,29 +31,6 @@ const site_configuration = {
     navIcon: <AdbIcon />, // NavBar Icon
     navTitle: "Web3Boiler", // NavBar Text
     title: "Web3Boiler", // Browser Document Title
-    pages: [
-        {
-            name: "PAGE_ONE",
-            display: "Page 1",
-            render: PageOne
-        },
-        {
-            name: "PAGE_TWO",
-            display: "Page 2",
-            render: PageTwo,
-        },
-        {
-            name: "PAGE_THREE",
-            display: "Page 3",
-            render: PageThree
-        },
-        {
-            name: "CONTRACT_TEST",
-            display: "Contract Test",
-            render: ContractTest
-        },
-    ]
-
 }
 
 export const configuration = {

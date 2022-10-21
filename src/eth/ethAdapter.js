@@ -3,14 +3,10 @@
 import { ethers } from 'ethers';
 import { configuration } from '../config/_config';
 import { ETHEREUM_ACTION_TYPES } from 'redux/constants';
-// import contractFxs from './contractMethods';
+import contractFxs from './contractMethods';
 import store from 'redux/store/store';
 
-const contractFxs = null; // shim as null while debeugging
-
 var instanced = false; // Is ethAdapter instanced?
-
-console.log(configuration); // Uncomment = break
 
 /**
  * Callback to run after establishing web3connection state pass or fail
@@ -44,8 +40,8 @@ class EthAdapter {
         this.networkName = this._buildGetterSetterForEthereumStateKey(["networkName"]);
         
         // Instance state not needed in redux
-        // this.configuration = configuration;
-        // this.provider = new ethers.providers.JsonRpcProvider(configuration.ethereum?.ETH_HTTP_PROVIDER); // Web3 Provider -- Populated on successful _connectToWeb3Wallet()
+        this.configuration = configuration;
+        this.provider = new ethers.providers.JsonRpcProvider(configuration.ethereum?.ETH_HTTP_PROVIDER); // Web3 Provider -- Populated on successful _connectToWeb3Wallet()
         this.signer = null; // Web3 Signer -- Populated on successful _connectToWeb3Wallet()
 
         this.contractMethods = contractFxs;

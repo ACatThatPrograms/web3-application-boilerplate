@@ -4,12 +4,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@emotion/react';
 import { ConnectWeb3Button } from './ConnectWeb3Button';
-import { ConfigurationContext } from 'context/ConfigurationContext';
+import { configuration } from 'config/_config';
 
 
 export function NavigationBar({ navigate, pages }) {
 
-    const configuration = React.useContext(ConfigurationContext);
     const { web3Connected } = useSelector(s => ({ web3Connected: s.ethereum.connected, web3Accounts: s.ethereum.accounts }))
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const { currentPage } = useSelector(state => ({ currentPage: state.application.activePage }))

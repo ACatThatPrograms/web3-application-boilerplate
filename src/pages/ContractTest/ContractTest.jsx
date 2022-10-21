@@ -108,10 +108,13 @@ export function ContractTest() {
                             if (res.error) {
                                 throw new Error(res.error);
                             }
-                            res = await res.wait();
+                            // If method is waitable, wait for it. . .
+                            if (res.wait) {
+                                res = await res.wait();
+                            }
                             response = {
                                 error: false,
-                                message: res.transactionHash
+                                message: res
                             }
                         } catch (ex) {
                             console.log(ex);

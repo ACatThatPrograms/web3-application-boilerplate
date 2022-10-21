@@ -10,13 +10,13 @@ import { ThemeProvider } from '@mui/system';
 
 import { theme } from 'theme/MUITheme';
 
-import { ConfigurationContext } from 'context/ConfigurationContext';
+// Page imports
+import { PageOne, PageTwo, PageThree, ContractTest } from 'pages'
+import { configuration } from 'config/_config';
 
 export default function App() {
 
     const dispatch = useDispatch()
-    const configuration = React.useContext(ConfigurationContext);
-    const pages = configuration.site.pages;
     const { currentPage, setPage } = useSelector(s => ({
         currentPage: s.application.activePage,
         setPage: (page) => dispatch(APPLICATION_ACTIONS.setActivePage(page))
@@ -28,12 +28,36 @@ export default function App() {
         document.title = configuration.site.title;
     }, [])
 
+    /* Page Configuration */
+    const pages = [
+        {
+            name: "PAGE_ONE",
+            display: "Page 1",
+            render: PageOne
+        },
+        {
+            name: "PAGE_TWO",
+            display: "Page 2",
+            render: PageTwo,
+        },
+        {
+            name: "PAGE_THREE",
+            display: "Page 3",
+            render: PageThree
+        },
+        {
+            name: "CONTRACT_TEST",
+            display: "Contract Test",
+            render: ContractTest
+        },
+    ]
+
     const navigate = (page) => {
         setPage(page)
     }
 
     const renderPage = () => {
-        for (let page of configuration.site.pages) {
+        for (let page of pages) {
             if (currentPage === page.name) {
                 return <page.render />
             }

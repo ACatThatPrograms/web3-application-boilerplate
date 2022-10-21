@@ -1,9 +1,8 @@
 import React from 'react'
 import { Typography, Link } from "@mui/material";
-import { ConfigurationContext } from "context/ConfigurationContext";
+import { configuration } from 'config/_config';
 
 export function Copyright() {
-    const configuration = React.useContext(ConfigurationContext);
     return (
         <Typography variant="body2" color="text.secondary" align="center">
             {'Copyright © '}
