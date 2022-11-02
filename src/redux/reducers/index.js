@@ -1,10 +1,12 @@
 import { combineReducers } from 'redux';
 import applicationReducer from './application';
+import ethAdapter from 'eth-adapter';
+import { classInstanceReducer } from 'redux-class-watcher';
 
-import { configureReduxCombatibleAdapter } from 'eth-adapter';
-let [ethAdapterReducer] = configureReduxCombatibleAdapter("http://localhost:8545");
+
+export const [ethAdapterReducer, ethAdapterEqualize] = classInstanceReducer(ethAdapter, "ethAdapter");
 
 export default combineReducers({
-    ethereum: ethAdapterReducer,
+    ethAdapter: ethAdapterReducer,
     application: applicationReducer,
 })

@@ -17,9 +17,10 @@ import { configuration } from 'config/_config';
 export default function App() {
 
     const dispatch = useDispatch()
-    const { currentPage, setPage } = useSelector(s => ({
+    const { currentPage, setPage, reduxState } = useSelector(s => ({
         currentPage: s.application.activePage,
-        setPage: (page) => dispatch(APPLICATION_ACTIONS.setActivePage(page))
+        setPage: (page) => dispatch(APPLICATION_ACTIONS.setActivePage(page)),
+        reduxState: s
     }))
 
     // Apply site-wide configs
@@ -27,6 +28,17 @@ export default function App() {
         console.log(`MUI THEME:`, theme);
         document.title = configuration.site.title;
     }, [])
+
+    // Setup Debug Print State Key
+    React.useEffect( () => {
+        const printOnD = (e) => {
+            if (e.key === 'd') {
+                console.log(reduxState);
+            }
+        }
+        document.addEventListener("keydown", printOnD);
+        return () => document.removeEventListener("keydown", printOnD);
+    });
 
     /* Page Configuration */
     const pages = [

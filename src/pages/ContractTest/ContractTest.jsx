@@ -4,11 +4,9 @@ import { Box } from "@mui/system";
 import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
 
 import { useTheme } from "@emotion/react";
-import { getEthAdapter } from 'eth-adapter';
+import ethAdapter from 'eth-adapter';
 
 export function ContractTest() {
-
-    const ethAdapter = getEthAdapter();
 
     const theme = useTheme();
     const CONTRACT_FXS = ethAdapter.contractMethods;

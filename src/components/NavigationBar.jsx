@@ -5,11 +5,13 @@ import { useSelector } from 'react-redux';
 import { useTheme } from '@emotion/react';
 import { ConnectWeb3Button } from './ConnectWeb3Button';
 import { configuration } from 'config/_config';
+import ethAdapter from 'eth-adapter';
 
 
 export function NavigationBar({ navigate, pages }) {
 
-    const { web3Connected } = useSelector(s => ({ web3Connected: s.ethereum.connected, web3Accounts: s.ethereum.accounts }))
+    useSelector(s => (s.ethAdapter)); // Hook into reducer updates so equalize works properly against ethAdapter
+    const {web3Connected} = {web3Connected: ethAdapter.connected}
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const { currentPage } = useSelector(state => ({ currentPage: state.application.activePage }))
 
