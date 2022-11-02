@@ -4,9 +4,11 @@ import { Box } from "@mui/system";
 import Grid2 from '@mui/material/Unstable_Grid2'; // Grid version 2
 
 import { useTheme } from "@emotion/react";
-import ethAdapter from 'eth/ethAdapter';
+import { getEthAdapter } from 'eth-adapter';
 
 export function ContractTest() {
+
+    const ethAdapter = getEthAdapter();
 
     const theme = useTheme();
     const CONTRACT_FXS = ethAdapter.contractMethods;
@@ -151,7 +153,7 @@ export function ContractTest() {
                 }
 
                 contractFxGroups[contractFxKey].push(
-                    <Grid2 xs={12} sx={{ borderBottom : "1px dashed", borderColor: theme.palette.primary.main}} >
+                    <Grid2 xs={12} sx={{ borderBottom: "1px dashed", borderColor: theme.palette.primary.main }} >
                         <Typography variant="h6" sx={{ fontWeight: 900, color: theme.palette.primary.main, textDecoration: "underline" }}>
                             {methodName}{methodParamString}
                         </Typography>

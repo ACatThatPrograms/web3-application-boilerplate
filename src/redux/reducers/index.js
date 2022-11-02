@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux';
 import applicationReducer from './application';
-import ethereumReducer from './ethereum';
+
+import { configureReduxCombatibleAdapter } from 'eth-adapter';
+let [ethAdapterReducer] = configureReduxCombatibleAdapter("http://localhost:8545");
 
 export default combineReducers({
-    ethereum: ethereumReducer,
+    ethereum: ethAdapterReducer,
     application: applicationReducer,
 })
